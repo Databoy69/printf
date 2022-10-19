@@ -9,7 +9,3 @@ int flag_plus(va_list list)
 	}
 	return (1);
 }
-int flag_space(va_list list)
-{
-if
-

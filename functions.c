@@ -12,9 +12,9 @@ int print_char(va_list list, han_s *handler)
 	char c;
 	char pad = ' ';
 	unsigned int pad_count = 1;
-	unsigned int count;
+	unsigned int count = 0;
 
-	c = va_arg(list, char);
+	c = va_arg(list, int);
 	if (handler->minus)
 	{
 		count += _putchar(c);
@@ -76,7 +76,7 @@ int print_nan(char ch1, char ch2)
  *@list:list to increment
  *Return:count of characters printed
  */
-int print_num(va_list list)
+int print_num(va_list list, han_s *handler)
 {
 	long num;
 	unsigned int n;
