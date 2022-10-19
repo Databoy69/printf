@@ -6,7 +6,7 @@
  *Return:pointer to function that corresponds with specified format
  *
  */
-int (*get_func(char ch))(va_list, han_s *handler)
+int (*get_func(char ch))(va_list)
 {
 	int i = 0;
 	ops_f print_op[] = {
