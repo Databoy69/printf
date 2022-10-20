@@ -1,143 +1,188 @@
-#include "holberton.h"
+#include "main.h"
+
+/************************* PRINT CHAR *************************/
 
 /**
- *print_char - prints a character to stdout
- *
- *@list:list to increment
- *@handler:handler struct
- *Return:1 since printed only one character
+ * print_char - Prints a char
+ * @types: List a of arguments
+ * @buffer: Buffer array to handle print
+ * @flags:  Calculates active flags
+ * @width: Width
+ * @precision: Precision specification
+ * @size: Size specifier
+ * Return: Number of chars printed
  */
-int print_char(va_list list, han_s *handler)
+int print_char(va_list types, char buffer[],
+	int flags, int width, int precision, int size)
 {
-	char c;
-	char pad = ' ';
-	unsigned int pad_count = 1;
-	unsigned int count;
+	char c = va_arg(types, int);
 
-	c = va_arg(list, char);
-	if (handler->minus)
-	{
-		count += _putchar(c);
-	}
-	for (; pad_count++ < handler->width; )
-		count += _putchar(pad);
-	if (!handler->minus)
-		count += _putchar(c);
-	return (count);
+	return (handle_write_char(c, buffer, flags, width, precision, size));
 }
+/************************* PRINT A STRING *************************/
 /**
- *print_string - prints a string to stdout,1 char at a time
- *
- *@list:list to increment
- *
- *Return:no of char printed
+ * print_string - Prints a string
+ * @types: List a of arguments
+ * @buffer: Buffer array to handle print
+ * @flags:  Calculates active flags
+ * @width: get width.
+ * @precision: Precision specification
+ * @size: Size specifier
+ * Return: Number of chars printed
  */
-int print_string(va_list list)
+int print_string(va_list types, char buffer[],
+	int flags, int width, int precision, int size)
 {
-	char *str;
-	int i;
-	char c;
+	int length = 0, i;
+	char *str = va_arg(types, char *);
 
-	str = va_arg(list, char *);
+	UNUSED(buffer);
+	UNUSED(flags);
+	UNUSED(width);
+	UNUSED(precision);
+	UNUSED(size);
 	if (str == NULL)
+	{
 		str = "(null)";
-	for (i = 0; str[i] != '\0'; i++)
-	{
-		c = str[i];
-		write(1, &c, 1);
+		if (precision >= 6)
+			str = "      ";
 	}
-	return (i);
+
+	while (str[length] != '\0')
+		length++;
+
+	if (precision >= 0 && precision < length)
+		length = precision;
+
+	if (width > length)
+	{
+		if (flags & F_MINUS)
+		{
+			write(1, &str[0], length);
+			for (i = width - length; i > 0; i--)
+				write(1, " ", 1);
+			return (width);
+		}
+		else
+		{
+			for (i = width - length; i > 0; i--)
+				write(1, " ", 1);
+			write(1, &str[0], length);
+			return (width);
+		}
+	}
+
+	return (write(1, str, length));
 }
+/************************* PRINT PERCENT SIGN *************************/
 /**
- * print_nan - writes chars after a % if they
- * don't match anything in the struct
- * @ch1: the first char passed (always %)
- * @ch2: the char after the %
- * Return: 1 if ch2 is a % and 2 is ch2 is anything else
+ * print_percent - Prints a percent sign
+ * @types: Lista of arguments
+ * @buffer: Buffer array to handle print
+ * @flags:  Calculates active flags
+ * @width: get width.
+ * @precision: Precision specification
+ * @size: Size specifier
+ * Return: Number of chars printed
  */
-
-int print_nan(char ch1, char ch2)
+int print_percent(va_list types, char buffer[],
+	int flags, int width, int precision, int size)
 {
-	if (ch2 == '%')
-	{
-		write(1, &ch2, 1);
-		return (1);
-	}
-	else
-	{
-		write(1, &ch1, 1);
-		write(1, &ch2, 1);
-		return (2);
-	}
+	UNUSED(types);
+	UNUSED(buffer);
+	UNUSED(flags);
+	UNUSED(width);
+	UNUSED(precision);
+	UNUSED(size);
+	return (write(1, "%%", 1));
 }
 
+/************************* PRINT INT *************************/
 /**
- *print_num - prints an integer of format 'd'
- *@list:list to increment
- *Return:count of characters printed
+ * print_int - Print int
+ * @types: Lista of arguments
+ * @buffer: Buffer array to handle print
+ * @flags:  Calculates active flags
+ * @width: get width.
+ * @precision: Precision specification
+ * @size: Size specifier
+ * Return: Number of chars printed
  */
-int print_num(va_list list)
+int print_int(va_list types, char buffer[],
+	int flags, int width, int precision, int size)
 {
-	long num;
-	unsigned int n;
-	int count = 0;
-	int x = 1;
+	int i = BUFF_SIZE - 2;
+	int is_negative = 0;
+	long int n = va_arg(types, long int);
+	unsigned long int num;
 
-	if (handler->l_mod)
+	n = convert_size_number(n, size);
+
+	if (n == 0)
+		buffer[i--] = '0';
+
+	buffer[BUFF_SIZE - 1] = '\0';
+	num = (unsigned long int)n;
+
+	if (n < 0)
 	{
-		num = va_arg(list, long);
+		num = (unsigned long int)((-1) * n);
+		is_negative = 1;
 	}
-	else if (handler->h_mod)
+
+	while (num > 0)
 	{
-		num = (short int)va_arg(list, int);
+		buffer[i--] = (num % 10) + '0';
+		num /= 10;
 	}
-	if (num < 0)
+
+	i++;
+
+	return (write_number(is_negative, i, buffer, flags, width, precision, size));
+}
+
+/************************* PRINT BINARY *************************/
+/**
+ * print_binary - Prints an unsigned number
+ * @types: Lista of arguments
+ * @buffer: Buffer array to handle print
+ * @flags:  Calculates active flags
+ * @width: get width.
+ * @precision: Precision specification
+ * @size: Size specifier
+ * Return: Numbers of char printed.
+ */
+int print_binary(va_list types, char buffer[],
+	int flags, int width, int precision, int size)
+{
+	unsigned int n, m, i, sum;
+	unsigned int a[32];
+	int count;
+
+	UNUSED(buffer);
+	UNUSED(flags);
+	UNUSED(width);
+	UNUSED(precision);
+	UNUSED(size);
+
+	n = va_arg(types, unsigned int);
+	m = 2147483648; /* (2 ^ 31) */
+	a[0] = n / m;
+	for (i = 1; i < 32; i++)
 	{
-		n = -num;
-		_putchar('-');
-		count++;
+		m /= 2;
+		a[i] = (n / m) % 2;
 	}
-	if (handler->plus && num > 0)
+	for (i = 0, sum = 0, count = 0; i < 32; i++)
 	{
-		_putchar('+');
-	}
-	else
-	{
-		n = num;
-	}
-	while ((n / x) > 9)
-	{
-		x *= 10;
-	}
-	while (x >= 1)
-	{
-		_putchar(((n / x) % 10) + '0');
-		x /= 10;
-		count++;
+		sum += a[i];
+		if (sum || i == 31)
+		{
+			char z = '0' + a[i];
+
+			write(1, &z, 1);
+			count++;
+		}
 	}
 	return (count);
-}
-/**
- *print_unsigned - prints unsigned no.
- *@list:list to increment
- *Return:count of no. printed
- */
-int print_unsigned(va_list list)
-{
-	unsigned int num;
-	int len = 0;
-	int d = 1;
-
-	num = va_arg(list, unsigned int);
-	for (; num / d > 9; )
-	{
-		d = d * 10;
-	}
-	while (d > 0)
-	{
-		len += _putchar('0' + (num / d));
-		num = num % d;
-		d = d / 10;
-	}
-	return (len);
 }
