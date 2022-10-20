@@ -15,9 +15,27 @@
 int print_char(va_list types, char buffer[],
 	int flags, int width, int precision, int size)
 {
+<<<<<<< HEAD
 	char c = va_arg(types, int);
 
 	return (handle_write_char(c, buffer, flags, width, precision, size));
+=======
+	char c;
+	char pad = ' ';
+	unsigned int pad_count = 1;
+	unsigned int count = 0;
+
+	c = va_arg(list, int);
+	if (handler->minus)
+	{
+		count += _putchar(c);
+	}
+	for (; pad_count++ < handler->width; )
+		count += _putchar(pad);
+	if (!handler->minus)
+		count += _putchar(c);
+	return (count);
+>>>>>>> ea7e12b6e781b4fabf1b0c6008c8440abb646f85
 }
 /************************* PRINT A STRING *************************/
 /**
@@ -108,8 +126,12 @@ int print_percent(va_list types, char buffer[],
  * @size: Size specifier
  * Return: Number of chars printed
  */
+<<<<<<< HEAD
 int print_int(va_list types, char buffer[],
 	int flags, int width, int precision, int size)
+=======
+int print_num(va_list list, han_s *handler)
+>>>>>>> ea7e12b6e781b4fabf1b0c6008c8440abb646f85
 {
 	int i = BUFF_SIZE - 2;
 	int is_negative = 0;

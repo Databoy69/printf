@@ -64,10 +64,10 @@ typedef struct ops
 int _printf(const char *format, ...);
 int _putchar(char c);
 int (*get_func(char ch))(va_list);
-int print_char(va_list list);
+int print_char(va_list list, han_s *handler);
 int print_string(va_list list);
 int print_nan(char ch1, char ch2);
-int print_num(va_list list);
+int print_num(va_list list, han_s *handler);
 unsigned int base_len(unsigned int num, int base);
 int print_binary(va_list list);
 int print_octal(va_list list);
